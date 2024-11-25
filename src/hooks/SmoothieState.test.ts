@@ -4,6 +4,7 @@ import { Smoothie } from "../types/Smoothie";
 import { useSmoothieState } from "./SmoothieState";
 
 export const mockRepository = {
+  loadSmoothies: jest.fn(),
   createSmoothie: jest.fn(),
   updateSmoothie: jest.fn(),
   deleteSmoothie: jest.fn(),
@@ -58,15 +59,19 @@ describe("useSmoothieState", () => {
       tags: ["Healthy"],
       isPublished: false,
     };
-
-    mockRepository.createSmoothie.mockResolvedValueOnce(newSmoothie);
-
+  
+    mockRepository.loadSmoothies.mockResolvedValueOnce([]);
+  
     const { result } = renderHook(() => useSmoothieState(mockRepository));
-
+  
+    await act(async () => {});
+  
+    mockRepository.createSmoothie.mockResolvedValueOnce(newSmoothie);
+  
     await act(async () => {
       await result.current.createSmoothie(newSmoothie);
     });
-
+  
     expect(result.current.smoothies).toContainEqual(newSmoothie);
     expect(mockRepository.createSmoothie).toHaveBeenCalledWith(newSmoothie);
   });

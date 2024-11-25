@@ -1,24 +1,25 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export const useForm = <T extends Record<string, unknown>>(
-  options: {
+  {
+    initialValues,
+    validations
+  } :
+  {
     initialValues: T;
     validations?: {
       [K in keyof T]?: (value: T[K], values: T) => string | null;
     };
   }
-): {
-  values: T;
-  errors: { [K in keyof T]?: string | null };
-  isValid: boolean;
-  setValue: <K extends keyof T>(key: K, value: T[K]) => void;
-  getValue: <K extends keyof T>(key: K) => T[K];
-  resetForm: () => void;
-} => {
-  const { initialValues, validations } = options;
-
+) => {
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<{ [K in keyof T]?: string | null }>({});
+
+  const isDirty = useMemo(() => {
+    return !Object.keys(initialValues).every(
+      (key) => values[key as keyof T] === initialValues[key as keyof T]
+    );
+  }, [initialValues, values]);
 
   const setValue = useCallback(
     <K extends keyof T>(key: K, value: T[K]) => {
@@ -53,6 +54,7 @@ export const useForm = <T extends Record<string, unknown>>(
   return {
     values,
     errors,
+    isDirty,
     isValid: Object.values(errors).every((error) => !error),
     setValue,
     getValue,

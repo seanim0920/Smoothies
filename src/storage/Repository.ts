@@ -2,6 +2,10 @@ import { Smoothie, SmoothieID, SmoothieInput, SmoothiePublish } from '../types/S
 import { LocalSmoothieStorage, localSmoothieStorage } from './LocalStorage';
 import { PublicSmoothieStorage, publicSmoothieStorage } from './PublicStorage';
 
+const randomId = () => {
+  return Math.random().toString(36).substring(2, 10);
+}
+
 export class SmoothieRepository {
   private localSmoothieStorage: LocalSmoothieStorage;
   private publicSmoothieStorage: PublicSmoothieStorage;
@@ -19,7 +23,8 @@ export class SmoothieRepository {
    */
   loadSmoothies = async (): Promise<Smoothie[]> => {
     try {
-      return this.localSmoothieStorage.loadSmoothies();
+      const data = await this.localSmoothieStorage.loadSmoothies();
+      return data ?? [];
     } catch (err) {
       console.error('Error loading smoothies:', err);
       throw err
@@ -35,7 +40,7 @@ export class SmoothieRepository {
     smoothieInput: SmoothieInput
   ): Promise<Smoothie> => {
     try {
-      const smoothie = {...smoothieInput, id: crypto.randomUUID()}
+      const smoothie = {...smoothieInput, id: randomId()}
 
       await this.localSmoothieStorage.createSmoothie(smoothie);
 

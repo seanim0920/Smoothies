@@ -22,7 +22,7 @@ export const SmoothieDetails = (
           </li>
         ))}
       </ul>
-      {smoothie.tags && smoothie.tags.length > 0 && (
+      {smoothie.tags && smoothie.tags.join('').length > 0 && (
         <p>
           Tags: {smoothie.tags.join(', ')}
         </p>

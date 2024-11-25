@@ -52,9 +52,9 @@ export const App = () => {
         </>
       ) : (
         <>
-          <button onClick={() => setCurrentFlow({flow: 'ViewSmoothies'})}>Return to Smoothies</button>
           {currentFlow.flow === "EditSmoothie" ?
             <SmoothieForm 
+              onReturn={() => setCurrentFlow({flow: 'ViewSmoothies'})}
               initialValues={currentFlow.smoothie}
               onSubmit={
                 (smoothieForm) => {
@@ -62,9 +62,10 @@ export const App = () => {
                   setCurrentFlow({flow: "ViewSmoothies"})
                 }
               } 
-              submitText={"Edit Smoothie"}
+              submitText={"Finish Editing"}
             /> :
             <SmoothieForm
+              onReturn={() => setCurrentFlow({flow: 'ViewSmoothies'})}
               onSubmit={
                 (smoothie) => {
                   smoothieState.createSmoothie(smoothie)

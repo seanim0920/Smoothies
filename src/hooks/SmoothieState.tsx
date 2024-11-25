@@ -39,8 +39,9 @@ export const useSmoothieState = (repository: SmoothieRepository) => {
         alert("Could not find smoothie to update")
         return;
       }
-      await repository.updateSmoothie(smoothie)
-      saveSmoothies(savedSmoothies.current.map((s) => (s.id === smoothieId ? {...smoothie, ...update} : s)))
+      const updatedSmoothie = {...smoothie, ...update}
+      await repository.updateSmoothie(updatedSmoothie)
+      saveSmoothies(savedSmoothies.current.map((s) => (s.id === smoothieId ? updatedSmoothie : s)))
     },
     deleteSmoothie: async (smoothieId: SmoothieID) => {
       const smoothie = findSmoothie(smoothieId)
