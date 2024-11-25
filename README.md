@@ -71,3 +71,6 @@ strongly preferred)
 #### What languages can I use?
 
 TypeScript or JavaScript, HTML, CSS
+
+* Add tests
+* Update README

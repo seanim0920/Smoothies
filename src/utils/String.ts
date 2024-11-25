@@ -1,0 +1,1 @@
+export const normalize = (str: string) => str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();

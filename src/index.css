@@ -1,0 +1,116 @@
+:root {
+  --color-background: #ffe9d6;
+  --color-text: rgba(255, 255, 255, 0.87);
+  --color-link: #646cff;
+  --color-link-hover: #535bf2;
+  --color-button-primary: #f3f4f6; /* Now the default button color */
+  --color-button-primary-text: #213547;
+  --color-button-primary-border: #d1d5db;
+  --color-button-primary-hover: #e5e7eb;
+  --color-button-primary-hover-border: #9ca3af;
+  --color-button-destructive-text: #dc2626; /* Red text for destructive */
+  --color-button-destructive-hover: #b91c1c;
+  --color-button-destructive-hover-border: #991b1b; 
+
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: var(--color-text);
+  background-color: var(--color-background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: var(--color-link);
+  text-decoration: inherit;
+}
+a:hover {
+  color: var(--color-link-hover);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid var(--color-button-primary-border); /* Added border */
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--color-button-primary);
+  color: var(--color-button-primary-text); /* Added text color */
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.25s; /* Added background transition */
+}
+button:hover {
+  background-color: var(--color-button-primary-hover);
+  border-color: var(--color-button-primary-hover-border);
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+button.destructive {
+  color: var(--color-button-destructive-text); 
+}
+button.destructive:hover {
+  color: var(--color-button-destructive-hover); 
+  border-color: var(--color-button-destructive-hover-border);
+}
+button.destructive:focus,
+button.destructive:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+button.confirm { 
+  background-color: #22c55e; 
+  color: white;
+  border: 1px solid transparent;
+}
+button.confirm:hover {
+  background-color: #16a34a; 
+  border-color: #15803d;
+}
+button.confirm:focus,
+button.confirm:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+label {
+  display: block; 
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+
+    --color-link-hover: #747bff;
+    --color-button-primary: #f9f9f9;
+    --color-button-primary-text: #1a1a1a;
+    --color-button-destructive-text: #ef4444; 
+    --color-button-destructive-hover: #dc2626;
+    --color-button-destructive-hover-border: #b91c1c;
+  }
+}
