@@ -71,14 +71,12 @@ export const SmoothieForm = (
         <div>
           <h3>Ingredients</h3>
           <ListField<Ingredient>
+            labels={["Name", "Quantity"]}
             value={getValue("ingredients")}
             onChange={(newIngredients) => setValue("ingredients", newIngredients)}
             addItem={() => ({ name: "", quantity: "" })}
             renderItem={(ingredient, index, onChangeItem, onRemove) => (
               <div key={index}>
-                {
-                  index === 0 && <label htmlFor="name">Name</label>
-                }
                 <input
                   type="text"
                   placeholder="Ingredient Name"
@@ -88,9 +86,6 @@ export const SmoothieForm = (
                   }
                   required
                 />
-                {
-                  index === 0 && <label htmlFor="quantity">Quantity</label>
-                }
                 <input
                   type="text"
                   placeholder="Quantity"
@@ -102,7 +97,7 @@ export const SmoothieForm = (
                 />
                 {
                   getValue("ingredients").length > MIN_INGREDIENTS ? (
-                    <button type="button" onClick={onRemove}>
+                    <button className="destructive" type="button" onClick={onRemove}>
                       Remove
                     </button>
                   ) : null
@@ -126,7 +121,7 @@ export const SmoothieForm = (
                   value={tag}
                   onChange={(e) => onChangeItem(e.target.value)}
                 />
-                <button type="button" onClick={onRemove}>
+                <button className="destructive" type="button" onClick={onRemove}>
                   Remove
                 </button>
               </div>
@@ -134,10 +129,12 @@ export const SmoothieForm = (
           />
         </div>
 
-        <button type="submit">{submitText}</button>
-        <button type="button" onClick={resetForm}>
-          Reset
-        </button>
+        <div style={{marginTop: "2rem"}}>
+          <button className="confirm" type="submit">{submitText}</button>
+          <button className="destructive" type="button" onClick={resetForm}>
+            Reset
+          </button>
+        </div>
       </form>
     </>
   );

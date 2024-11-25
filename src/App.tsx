@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { SearchBar } from './components/SearchBar';
+import { confetti } from './Confetti';
 import { useSmoothieState } from './hooks/SmoothieState';
 import { SmoothieDetails } from './SmoothieDetails';
 import { SmoothieForm } from './SmoothieForm';
@@ -14,6 +15,7 @@ type Navigation =
 export const App = () => {
   const smoothieState = useSmoothieState(smoothieRespository)
   const [currentFlow, setCurrentFlow] = useState<Navigation>({ flow: 'ViewSmoothies' });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   if (smoothieState.status === "error") {
     alert("Failed to fetch smoothies from local storage. Data may not be persisted.");
@@ -25,6 +27,17 @@ export const App = () => {
 
   return (
     <div>
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
+        }}
+      />
       <h1>Smoothie Recipes</h1>
       {currentFlow.flow === 'ViewSmoothies' ? (
         <>
@@ -69,6 +82,7 @@ export const App = () => {
               onSubmit={
                 (smoothie) => {
                   smoothieState.createSmoothie(smoothie)
+                  confetti(canvasRef.current)
                   setCurrentFlow({flow: "ViewSmoothies"})
                 }
               } 
