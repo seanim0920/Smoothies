@@ -1,6 +1,6 @@
 import { ListField } from "./components/ListField";
 import { useForm } from "./hooks/Form";
-import { Ingredient, SmoothieCreate } from "./types/Smoothie";
+import { Ingredient, SmoothieInput } from "./types/Smoothie";
 import { validateIngredients, validateName } from "./utils/SmoothieFormValidation";
 
 const initialSmoothie = {
@@ -16,12 +16,12 @@ export const SmoothieForm = (
     onSubmit,
     submitText
   } : {
-    initialValues?: SmoothieCreate
-    onSubmit: (smoothie: SmoothieCreate) => void
+    initialValues?: SmoothieInput
+    onSubmit: (smoothie: SmoothieInput) => void
     submitText: string
   }
 ) => {
-  const { isValid, values, setValue, getValue, resetForm } = useForm<SmoothieCreate>({
+  const { isValid, values, setValue, getValue, resetForm } = useForm<SmoothieInput>({
     initialValues,
     validations: {
       name: validateName,

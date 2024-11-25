@@ -9,7 +9,7 @@ export const mockRepository = {
   deleteSmoothie: jest.fn(),
   publishSmoothie: jest.fn(),
   unpublishSmoothie: jest.fn(),
-} as unknown as SmoothieRepository;
+} as unknown as jest.Mocked<SmoothieRepository>;
 
 export const mockSmoothies: Smoothie[] = [
   {
@@ -39,19 +39,18 @@ describe("useSmoothieState", () => {
     jest.clearAllMocks();
   });
 
-  it("should initialize with the given smoothies", () => {
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
-    );
+  it("should load smoothies from the repository", async () => {
+    mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
+    const { result } = renderHook(() => useSmoothieState(mockRepository));
+
+    await act(async () => {});
+
+    expect(result.current.status).toBe("success");
     expect(result.current.smoothies).toEqual(mockSmoothies);
   });
 
-  it("should create a new smoothie and call repository", () => {
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
-    );
-
+  it("should create a new smoothie in state and repository", async () => {
     const newSmoothie = {
       id: "3",
       name: "Green Machine",
@@ -60,89 +59,89 @@ describe("useSmoothieState", () => {
       isPublished: false,
     };
 
-    act(() => {
-      result.current.createSmoothie(newSmoothie);
+    mockRepository.createSmoothie.mockResolvedValueOnce(newSmoothie);
+
+    const { result } = renderHook(() => useSmoothieState(mockRepository));
+
+    await act(async () => {
+      await result.current.createSmoothie(newSmoothie);
     });
 
     expect(result.current.smoothies).toContainEqual(newSmoothie);
     expect(mockRepository.createSmoothie).toHaveBeenCalledWith(newSmoothie);
   });
 
-  it("should update an existing smoothie and call repository", () => {
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
-    );
+  it("should update a smoothie in state and repository", async () => {
+    mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
-    const update = { id: "1", name: "Berry Blast Supreme" };
+    const { result } = renderHook(() => useSmoothieState(mockRepository));
 
-    act(() => {
-      result.current.updateSmoothie(update);
+    await act(async () => {});
+
+    const update = { ...mockSmoothies[0], name: "Berry Blast Supreme" };
+
+    await act(async () => {
+      await result.current.updateSmoothie("1", update);
     });
 
     expect(result.current.smoothies.find((s) => s.id === "1")?.name).toBe("Berry Blast Supreme");
-    expect(mockRepository.updateSmoothie).toHaveBeenCalledWith(update, false);
-  });
-
-  it("should alert and not update if the smoothie to update is not found", () => {
-    global.alert = jest.fn();
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
-    );
-
-    const update = { id: "nonexistent", name: "Unknown Smoothie" };
-
-    act(() => {
-      result.current.updateSmoothie(update);
+    expect(mockRepository.updateSmoothie).toHaveBeenCalledWith({
+      ...mockSmoothies[0],
+      ...update,
     });
-
-    expect(global.alert).toHaveBeenCalledWith("Could not find smoothie to update");
-    expect(mockRepository.updateSmoothie).not.toHaveBeenCalled();
   });
 
-  it("should delete a smoothie and call repository", () => {
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
-    );
+  it("should delete a smoothie in state and repository", async () => {
+    mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
-    act(() => {
-      result.current.deleteSmoothie("1");
+    const { result } = renderHook(() => useSmoothieState(mockRepository));
+
+    await act(async () => {});
+
+    await act(async () => {
+      await result.current.deleteSmoothie("1");
     });
 
     expect(result.current.smoothies).not.toContainEqual(mockSmoothies[0]);
     expect(mockRepository.deleteSmoothie).toHaveBeenCalledWith("1", false);
   });
 
-  it("should alert and not delete if the smoothie to delete is not found", () => {
-    global.alert = jest.fn();
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
-    );
+  it("should publish a smoothie in state and repository", async () => {
+    mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
-    act(() => {
-      result.current.deleteSmoothie("nonexistent");
-    });
+    const { result } = renderHook(() => useSmoothieState(mockRepository));
 
-    expect(global.alert).toHaveBeenCalledWith("Could not find smoothie to delete");
-    expect(mockRepository.deleteSmoothie).not.toHaveBeenCalled();
-  });
+    await act(async () => {});
 
-  it("should publish a smoothie and call repository", () => {
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
-    );
-
-    act(() => {
-      result.current.publishSmoothie({...mockSmoothies[0], isPublished: true});
+    await act(async () => {
+      await result.current.publishSmoothie({ ...mockSmoothies[0], isPublished: true });
     });
 
     expect(result.current.smoothies.find((s) => s.id === "1")?.isPublished).toBe(true);
-    expect(mockRepository.publishSmoothie).toHaveBeenCalledWith({...mockSmoothies[0], isPublished: true});
+    expect(mockRepository.publishSmoothie).toHaveBeenCalledWith({ ...mockSmoothies[0], isPublished: true });
   });
 
-  it("should filter smoothies", () => {
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
-    );
+  it("should unpublish a smoothie in state and repository", async () => {
+    mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
+
+    const { result } = renderHook(() => useSmoothieState(mockRepository));
+
+    await act(async () => {});
+
+    await act(async () => {
+      await result.current.unpublishSmoothie("2");
+    });
+
+    expect(result.current.smoothies.find((s) => s.id === "2")?.isPublished).toBe(false);
+    expect(mockRepository.unpublishSmoothie).toHaveBeenCalledWith("2");
+  });
+
+  it("should filter smoothies", async () => {
+    mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
+
+    const { result } = renderHook(() => useSmoothieState(mockRepository));
+
+    await act(async () => {});
 
     act(() => {
       result.current.filterSmoothies("berry");

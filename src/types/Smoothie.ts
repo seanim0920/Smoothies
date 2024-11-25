@@ -13,8 +13,6 @@ export type Smoothie = {
   tags?: string[];
 }
 
-export type SmoothieCreate = Omit<Smoothie, "id">
-
-export type SmoothieUpdate = Partial<Smoothie>
+export type SmoothieInput = Omit<Smoothie, "id">
 
 export type SmoothiePublish = Smoothie & {isPublished: true}

@@ -1,26 +1,26 @@
 import { useState } from 'react';
 import { SearchBar } from './components/SearchBar';
-import { useRequest } from './hooks/Request';
 import { useSmoothieState } from './hooks/SmoothieState';
 import { SmoothieDetails } from './SmoothieDetails';
 import { SmoothieForm } from './SmoothieForm';
 import { smoothieRespository } from './storage/Repository';
 import { Smoothie } from './types/Smoothie';
 
+type Navigation = 
+  | { flow: 'ViewSmoothies' }
+  | { flow: 'CreateSmoothie' }
+  | { flow: 'EditSmoothie'; smoothie: Smoothie }
+
 export const App = () => {
-  const smoothiesResponse = useRequest(smoothieRespository.loadSmoothies)
-  const smoothieState = useSmoothieState({
-    initialSmoothies: smoothiesResponse.status === "success" ? [...smoothiesResponse.data] : [],
-    repository: smoothieRespository
-  })
-  const [currentFlow, setCurrentFlow] = useState<
-    | { flow: 'ViewSmoothies' }
-    | { flow: 'CreateSmoothie' }
-    | { flow: 'EditSmoothie'; smoothie: Smoothie }
-  >({ flow: 'ViewSmoothies' });
-  
-  if (smoothiesResponse.status === "error") {
+  const smoothieState = useSmoothieState(smoothieRespository)
+  const [currentFlow, setCurrentFlow] = useState<Navigation>({ flow: 'ViewSmoothies' });
+
+  if (smoothieState.status === "error") {
     alert("Failed to fetch smoothies from local storage. Data may not be persisted.");
+  }
+
+  if (smoothieState.status === "loading") {
+    return <h1>Loading Smoothie Recipes</h1>
   }
 
   return (
@@ -57,8 +57,8 @@ export const App = () => {
             <SmoothieForm 
               initialValues={currentFlow.smoothie}
               onSubmit={
-                (smoothieUpdate) => {
-                  smoothieState.updateSmoothie(currentFlow.smoothie.id, smoothieUpdate)
+                (smoothieForm) => {
+                  smoothieState.updateSmoothie(currentFlow.smoothie.id, smoothieForm)
                   setCurrentFlow({flow: "ViewSmoothies"})
                 }
               } 

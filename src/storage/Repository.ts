@@ -1,4 +1,4 @@
-import { Smoothie, SmoothieID, SmoothiePublish, SmoothieUpdate } from '../types/Smoothie';
+import { Smoothie, SmoothieID, SmoothieInput, SmoothiePublish } from '../types/Smoothie';
 import { LocalSmoothieStorage, localSmoothieStorage } from './LocalStorage';
 import { PublicSmoothieStorage, publicSmoothieStorage } from './PublicStorage';
 
@@ -32,14 +32,18 @@ export class SmoothieRepository {
    * @param shouldPublish Whether to publish the smoothie upon creation.
    */
   createSmoothie = async (
-    smoothie: Smoothie
-  ): Promise<void> => {
+    smoothieInput: SmoothieInput
+  ): Promise<Smoothie> => {
     try {
+      const smoothie = {...smoothieInput, id: crypto.randomUUID()}
+
       await this.localSmoothieStorage.createSmoothie(smoothie);
 
       if (smoothie.isPublished) {
         await this.publicSmoothieStorage.createSmoothie(smoothie);
       }
+
+      return smoothie
     } catch (err) {
       console.error('Error creating smoothie:', err);
       throw err
@@ -63,14 +67,14 @@ export class SmoothieRepository {
 
   /**
    * Updates a smoothie.
-   * @param smoothieUpdate The updated smoothie data.
+   * @param SmoothieInput The updated smoothie data.
    */
-  updateSmoothie = async (smoothieUpdate: SmoothieUpdate, shouldPublish: boolean): Promise<void> => {
+  updateSmoothie = async (smoothie: Smoothie): Promise<void> => {
     try {
-      await this.localSmoothieStorage.updateSmoothie(smoothieUpdate);
+      await this.localSmoothieStorage.updateSmoothie(smoothie);
 
-      if (shouldPublish) {
-        await this.publicSmoothieStorage.updateSmoothie(smoothieUpdate);
+      if (smoothie.isPublished) {
+        await this.publicSmoothieStorage.updateSmoothie(smoothie);
       }
     } catch (err) {
       console.error('Error updating smoothie:', err);

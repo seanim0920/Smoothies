@@ -1,29 +1,17 @@
-import { Smoothie, SmoothieUpdate } from "../types/Smoothie";
+import { Smoothie } from "../types/Smoothie";
 
 export class PublicSmoothieStorage {
-  private apiBaseUrl = 'https://api.yourdomain.com/smoothies';
-
   async createSmoothie(smoothie: Smoothie): Promise<void> {
-    // await fetch(this.apiBaseUrl, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(smoothie),
-    // });
+    console.log("Creating a public smoothie", smoothie);
   }
 
-  async updateSmoothie(smoothieUpdate: SmoothieUpdate): Promise<void> {
-    // await fetch(`${this.apiBaseUrl}/${smoothieUpdate.id}`, {
-    //   method: 'PUT',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(smoothieUpdate),
-    // });
+  async updateSmoothie(smoothie: Smoothie): Promise<void> {
+    console.log("Updating a public smoothie", smoothie);
   }
 
   async deleteSmoothie(smoothieId: string): Promise<void> {
-    // await fetch(`${this.apiBaseUrl}/${smoothieId}`, {
-    //   method: 'DELETE',
-    // });
+    console.log("Deleting a public smoothie", smoothieId);
   }
 }
 
-export const publicSmoothieStorage = new PublicSmoothieStorage()
+export const publicSmoothieStorage = new PublicSmoothieStorage();

@@ -1,18 +1,21 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SmoothieRepository } from '../storage/Repository';
-import { Smoothie, SmoothieCreate, SmoothieID, SmoothiePublish, SmoothieUpdate } from '../types/Smoothie';
+import { Smoothie, SmoothieID, SmoothieInput, SmoothiePublish } from '../types/Smoothie';
 import { filterSmoothies } from '../utils/FilterSmoothies';
+import { useRequest } from './Request';
 
-export const useSmoothieState = ({
-  initialSmoothies,
-  repository
-} : {
-  initialSmoothies: Smoothie[],
-  repository: SmoothieRepository
-}) => {
-  const savedSmoothies = useRef(initialSmoothies)
+export const useSmoothieState = (repository: SmoothieRepository) => {
+  const savedSmoothies = useRef<Smoothie[]>([])
   const smoothiesFilter = useRef("")
-  const [smoothies, setSmoothies] = useState(initialSmoothies)
+  const [smoothies, setSmoothies] = useState<Smoothie[]>([])
+
+  const smoothiesResponse = useRequest(repository.loadSmoothies)
+
+  useEffect(() => {
+    if (smoothiesResponse.status === "success") {
+      saveSmoothies(smoothiesResponse.data)
+    }
+  }, [smoothiesResponse])
 
   const saveSmoothies = (smoothies: Smoothie[]) => {
     savedSmoothies.current = [...smoothies]
@@ -24,45 +27,45 @@ export const useSmoothieState = ({
   }
 
   return {
+    status: smoothiesResponse.status,
     smoothies,
-    createSmoothie: (smoothieCreate: SmoothieCreate) => {
-      const smoothie = {...smoothieCreate, id: crypto.randomUUID()}
-      saveSmoothies([...savedSmoothies.current, smoothie])
-      repository.createSmoothie(smoothie)
+    createSmoothie: async (smoothieForm: SmoothieInput) => {
+      const newSmoothie = await repository.createSmoothie(smoothieForm)
+      saveSmoothies([...savedSmoothies.current, newSmoothie])
     },
-    updateSmoothie: (smoothieId: SmoothieID, update: SmoothieUpdate) => {
+    updateSmoothie: async (smoothieId: SmoothieID, update: SmoothieInput) => {
       const smoothie = findSmoothie(smoothieId)
       if (!smoothie) {
         alert("Could not find smoothie to update")
         return;
       }
+      await repository.updateSmoothie(smoothie)
       saveSmoothies(savedSmoothies.current.map((s) => (s.id === smoothieId ? {...smoothie, ...update} : s)))
-      repository.updateSmoothie(update, smoothie.isPublished)
     },
-    deleteSmoothie: (smoothieId: SmoothieID) => {
+    deleteSmoothie: async (smoothieId: SmoothieID) => {
       const smoothie = findSmoothie(smoothieId)
       if (!smoothie) {
         alert("Could not find smoothie to delete")
         return;
       }
+      await repository.deleteSmoothie(smoothieId, smoothie.isPublished)
       saveSmoothies(savedSmoothies.current.filter((s) => s.id !== smoothieId))
-      repository.deleteSmoothie(smoothieId, smoothie.isPublished)
     },
-    publishSmoothie: (smoothie: SmoothiePublish) => {
+    publishSmoothie: async (smoothie: SmoothiePublish) => {
       if (findSmoothie(smoothie.id)?.isPublished) {
         alert("Smoothie already published")
         return;
       }
+      await repository.publishSmoothie(smoothie)
       saveSmoothies(savedSmoothies.current.map((s) => (s.id === smoothie.id ? {...smoothie, isPublished: true} : s)))
-      repository.publishSmoothie(smoothie)
     },
-    unpublishSmoothie: (smoothieId: SmoothieID) => {
+    unpublishSmoothie: async (smoothieId: SmoothieID) => {
       if (!findSmoothie(smoothieId)?.isPublished) {
         alert("Smoothie is not published")
         return;
       }
+      await repository.unpublishSmoothie(smoothieId)
       saveSmoothies(savedSmoothies.current.map((s) => (s.id === smoothieId ? {...s, isPublished: false} : s)))
-      repository.unpublishSmoothie(smoothieId)
     },
     filterSmoothies: (filterText: string) => {
       smoothiesFilter.current = filterText;
