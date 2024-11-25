@@ -1,35 +1,30 @@
-import { useState } from 'react'
-import './App.css'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { SmoothieForm } from './CreateSmoothie';
+import { useRequest } from './hooks/Request';
+import { useSmoothieState } from './hooks/SmoothieState';
+import { SearchBar } from './SearchBar';
+import { smoothieRespository } from './storage/Repository';
+import { SmoothieList } from './ViewSmoothies';
 
-function App() {
-  const [count, setCount] = useState(0)
+export const App = () => {
+  const smoothiesResponse = useRequest(smoothieRespository.loadSmoothies)
+  const smoothieState = useSmoothieState(
+    smoothiesResponse.status === "success" ? smoothiesResponse.data : []
+  )
+  
+  if (smoothiesResponse.status === "error") {
+    alert("Failed to fetch smoothies from local storage. Data may not be persisted.");
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save htehgrtto test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <h1>Smoothie Recipes</h1>
+      <SmoothieForm onCreateSmoothie={() => {console.error("unimplemented")}} />
+      <SearchBar onSearch={smoothieRespository.filterSmoothies} />
+      <SmoothieList
+        smoothies={smoothieState.smoothies}
+        onDeleteSmoothie={() => {console.error("unimplemented")}}
+        onEditSmoothie={() => {console.error("unimplemented")}}
+      />
+    </div>
+  );
 }
-
-export default App
