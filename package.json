@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://seanim0920.github.io/smoothie-recipes",
+  "homepage": "https://seanim0920.github.io/Smoothies/",
   "scripts": {
     "dev": "vite",
     "lint": "eslint .",

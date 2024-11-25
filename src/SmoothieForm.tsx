@@ -50,6 +50,16 @@ export const SmoothieForm = (
     onReturn();
   };
 
+  const handleReset = () => {
+    if (isDirty) {
+      const confirmReset = window.confirm(
+        "Are you sure you want to reset the form?"
+      );
+      if (!confirmReset) return;
+    }
+    resetForm();
+  };
+
   return (
     <>
       <button onClick={handleReturn}>Return to Smoothies</button>
@@ -57,7 +67,7 @@ export const SmoothieForm = (
         <h2>Create a New Smoothie</h2>
 
         <div>
-          <label htmlFor="name">Name</label>
+          <label style={{ fontWeight: "bold", marginBottom: "1rem" }} htmlFor="name">Name</label>
           <input
             type="text"
             id="name"
@@ -131,7 +141,7 @@ export const SmoothieForm = (
 
         <div style={{marginTop: "2rem"}}>
           <button className="confirm" type="submit">{submitText}</button>
-          <button className="destructive" type="button" onClick={resetForm}>
+          <button className="destructive" type="button" onClick={handleReset}>
             Reset
           </button>
         </div>
