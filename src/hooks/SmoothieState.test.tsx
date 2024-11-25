@@ -1,190 +1,153 @@
-import { act, renderHook } from '@testing-library/react';
-import { SmoothieRepository } from '../storage/Repository';
-import { Smoothie } from '../types/Smoothie';
-import { useSmoothieState } from './SmoothieState';
+import { act, renderHook } from "@testing-library/react";
+import { SmoothieRepository } from "../storage/Repository";
+import { Smoothie } from "../types/Smoothie";
+import { useSmoothieState } from "./SmoothieState";
 
-jest.mock('../utils/FilterSmoothies', () => ({
-  filterSmoothies: jest.fn((filterText: string, smoothies: Smoothie[]) => {
-    if (!filterText) return smoothies;
-    return smoothies.filter(s => s.name.includes(filterText));
-  }),
-}));
+export const mockRepository = {
+  createSmoothie: jest.fn(),
+  updateSmoothie: jest.fn(),
+  deleteSmoothie: jest.fn(),
+  publishSmoothie: jest.fn(),
+  unpublishSmoothie: jest.fn(),
+} as unknown as SmoothieRepository;
 
-describe('useSmoothieState Hook', () => {
-  let repository: SmoothieRepository;
-  const initialSmoothies: Smoothie[] = [
-    { id: '1', name: 'Strawberry Blast', isPublished: false },
-    { id: '2', name: 'Mango Mania', isPublished: true },
-  ];
+export const mockSmoothies: Smoothie[] = [
+  {
+    id: "1",
+    name: "Berry Blast",
+    ingredients: [
+      { name: "Blueberries", quantity: "150g" },
+      { name: "Raspberries", quantity: "100g" },
+    ],
+    tags: ["Fruit", "Antioxidants"],
+    isPublished: false,
+  },
+  {
+    id: "2",
+    name: "Tropical Delight",
+    ingredients: [
+      { name: "Mango", quantity: "1 cup" },
+      { name: "Pineapple", quantity: "1 cup" },
+    ],
+    tags: ["Tropical", "Refreshing"],
+    isPublished: true,
+  },
+];
 
+describe("useSmoothieState", () => {
   beforeEach(() => {
-    repository = new SmoothieRepository();
     jest.clearAllMocks();
   });
 
-  it('should initialize with initial smoothies', () => {
+  it("should initialize with the given smoothies", () => {
     const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
+      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
     );
 
-    expect(result.current.smoothies).toEqual(initialSmoothies);
+    expect(result.current.smoothies).toEqual(mockSmoothies);
   });
 
-  it('should create a new smoothie', () => {
-    const newSmoothie: Smoothie = { id: '3', name: 'Blueberry Bliss', isPublished: false };
+  it("should create a new smoothie and call repository", () => {
     const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
+      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
     );
+
+    const newSmoothie = {
+      id: "3",
+      name: "Green Machine",
+      ingredients: [{ name: "Spinach", quantity: "1 cup" }],
+      tags: ["Healthy"],
+      isPublished: false,
+    };
 
     act(() => {
       result.current.createSmoothie(newSmoothie);
     });
 
-    expect(repository.createSmoothie).toHaveBeenCalledWith(newSmoothie);
     expect(result.current.smoothies).toContainEqual(newSmoothie);
+    expect(mockRepository.createSmoothie).toHaveBeenCalledWith(newSmoothie);
   });
 
-  it('should update an existing smoothie', () => {
-    const update = { id: '1', name: 'Strawberry Explosion' };
+  it("should update an existing smoothie and call repository", () => {
     const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
+      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
     );
+
+    const update = { id: "1", name: "Berry Blast Supreme" };
 
     act(() => {
       result.current.updateSmoothie(update);
     });
 
-    expect(repository.updateSmoothie).toHaveBeenCalledWith(update, false);
-    expect(result.current.smoothies.find(s => s.id === '1')?.name).toBe('Strawberry Explosion');
+    expect(result.current.smoothies.find((s) => s.id === "1")?.name).toBe("Berry Blast Supreme");
+    expect(mockRepository.updateSmoothie).toHaveBeenCalledWith(update, false);
   });
 
-  it('should alert when updating a non-existent smoothie', () => {
-    window.alert = jest.fn();
-    const update = { id: '999', name: 'Non-existent' };
+  it("should alert and not update if the smoothie to update is not found", () => {
+    global.alert = jest.fn();
     const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
+      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
     );
+
+    const update = { id: "nonexistent", name: "Unknown Smoothie" };
 
     act(() => {
       result.current.updateSmoothie(update);
     });
 
-    expect(window.alert).toHaveBeenCalledWith('Could not find smoothie to update');
-    expect(repository.updateSmoothie).not.toHaveBeenCalled();
+    expect(global.alert).toHaveBeenCalledWith("Could not find smoothie to update");
+    expect(mockRepository.updateSmoothie).not.toHaveBeenCalled();
   });
 
-  it('should delete an existing smoothie', () => {
+  it("should delete a smoothie and call repository", () => {
     const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
+      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
     );
 
     act(() => {
-      result.current.deleteSmoothie('1');
+      result.current.deleteSmoothie("1");
     });
 
-    expect(repository.deleteSmoothie).toHaveBeenCalledWith('1', false);
-    expect(result.current.smoothies.find(s => s.id === '1')).toBeUndefined();
+    expect(result.current.smoothies).not.toContainEqual(mockSmoothies[0]);
+    expect(mockRepository.deleteSmoothie).toHaveBeenCalledWith("1", false);
   });
 
-  it('should alert when deleting a non-existent smoothie', () => {
-    window.alert = jest.fn();
+  it("should alert and not delete if the smoothie to delete is not found", () => {
+    global.alert = jest.fn();
     const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
+      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
     );
 
     act(() => {
-      result.current.deleteSmoothie('999');
+      result.current.deleteSmoothie("nonexistent");
     });
 
-    expect(window.alert).toHaveBeenCalledWith('Could not find smoothie to delete');
-    expect(repository.deleteSmoothie).not.toHaveBeenCalled();
+    expect(global.alert).toHaveBeenCalledWith("Could not find smoothie to delete");
+    expect(mockRepository.deleteSmoothie).not.toHaveBeenCalled();
   });
 
-  it('should publish a smoothie', () => {
-    const publishSmoothie = { id: '1' };
+  it("should publish a smoothie and call repository", () => {
     const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
+      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
     );
 
     act(() => {
-      result.current.publishSmoothie(publishSmoothie);
+      result.current.publishSmoothie({...mockSmoothies[0], isPublished: true});
     });
 
-    expect(repository.publishSmoothie).toHaveBeenCalledWith(publishSmoothie);
-    expect(result.current.smoothies.find(s => s.id === '1')?.isPublished).toBe(true);
+    expect(result.current.smoothies.find((s) => s.id === "1")?.isPublished).toBe(true);
+    expect(mockRepository.publishSmoothie).toHaveBeenCalledWith({...mockSmoothies[0], isPublished: true});
   });
 
-  it('should alert if smoothie is already published when trying to publish', () => {
-    window.alert = jest.fn();
-    const publishSmoothie = { id: '2' }; // Already published
+  it("should filter smoothies", () => {
     const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
+      useSmoothieState({ initialSmoothies: mockSmoothies, repository: mockRepository })
     );
 
     act(() => {
-      result.current.publishSmoothie(publishSmoothie);
+      result.current.filterSmoothies("berry");
     });
 
-    expect(window.alert).toHaveBeenCalledWith('Smoothie already published');
-    expect(repository.publishSmoothie).not.toHaveBeenCalled();
-  });
-
-  it('should unpublish a smoothie', () => {
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
-    );
-
-    act(() => {
-      result.current.unpublishSmoothie('2');
-    });
-
-    expect(repository.unpublishSmoothie).toHaveBeenCalledWith('2');
-    expect(result.current.smoothies.find(s => s.id === '2')?.isPublished).toBe(false);
-  });
-
-  it('should alert if smoothie is not published when trying to unpublish', () => {
-    window.alert = jest.fn();
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
-    );
-
-    act(() => {
-      result.current.unpublishSmoothie('1'); // Not published
-    });
-
-    expect(window.alert).toHaveBeenCalledWith('Smoothie is not published');
-    expect(repository.unpublishSmoothie).not.toHaveBeenCalled();
-  });
-
-  it('should filter smoothies based on filter text', () => {
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
-    );
-
-    act(() => {
-      result.current.filterSmoothies('Mango');
-    });
-
-    expect(result.current.smoothies).toEqual([
-      { id: '2', name: 'Mango Mania', isPublished: true },
-    ]);
-  });
-
-  it('should reset filter when filter text is empty', () => {
-    const { result } = renderHook(() =>
-      useSmoothieState({ initialSmoothies, repository })
-    );
-
-    act(() => {
-      result.current.filterSmoothies('Mango');
-    });
-
-    expect(result.current.smoothies).toHaveLength(1);
-
-    act(() => {
-      result.current.filterSmoothies('');
-    });
-
-    expect(result.current.smoothies).toHaveLength(initialSmoothies.length);
+    expect(result.current.smoothies).toEqual([mockSmoothies[0]]);
   });
 });

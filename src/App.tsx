@@ -1,15 +1,23 @@
-import { SmoothieForm } from './CreateSmoothie';
+import { useState } from 'react';
+import { SearchBar } from './components/SearchBar';
 import { useRequest } from './hooks/Request';
 import { useSmoothieState } from './hooks/SmoothieState';
-import { SearchBar } from './SearchBar';
+import { SmoothieDetails } from './SmoothieDetails';
+import { SmoothieForm } from './SmoothieForm';
 import { smoothieRespository } from './storage/Repository';
-import { SmoothieList } from './ViewSmoothies';
+import { Smoothie } from './types/Smoothie';
 
 export const App = () => {
   const smoothiesResponse = useRequest(smoothieRespository.loadSmoothies)
-  const smoothieState = useSmoothieState(
-    smoothiesResponse.status === "success" ? smoothiesResponse.data : []
-  )
+  const smoothieState = useSmoothieState({
+    initialSmoothies: smoothiesResponse.status === "success" ? [...smoothiesResponse.data] : [],
+    repository: smoothieRespository
+  })
+  const [currentFlow, setCurrentFlow] = useState<
+    | { flow: 'ViewSmoothies' }
+    | { flow: 'CreateSmoothie' }
+    | { flow: 'EditSmoothie'; smoothie: Smoothie }
+  >({ flow: 'ViewSmoothies' });
   
   if (smoothiesResponse.status === "error") {
     alert("Failed to fetch smoothies from local storage. Data may not be persisted.");
@@ -18,13 +26,56 @@ export const App = () => {
   return (
     <div>
       <h1>Smoothie Recipes</h1>
-      <SmoothieForm onCreateSmoothie={() => {console.error("unimplemented")}} />
-      <SearchBar onSearch={smoothieRespository.filterSmoothies} />
-      <SmoothieList
-        smoothies={smoothieState.smoothies}
-        onDeleteSmoothie={() => {console.error("unimplemented")}}
-        onEditSmoothie={() => {console.error("unimplemented")}}
-      />
+      {currentFlow.flow === 'ViewSmoothies' ? (
+        <>
+          <button onClick={() => setCurrentFlow({flow: 'CreateSmoothie'})}>Make a Smoothie</button>
+          <SearchBar onSearch={smoothieState.filterSmoothies} />
+          <div>
+            <h2>{
+              smoothieState.smoothies.length === 0 ?
+              "Make a New Smoothie!" :
+              "Your Smoothies"
+            }</h2>
+            {smoothieState.smoothies.map((smoothie) => (
+              <SmoothieDetails
+                key={smoothie.id}
+                smoothie={smoothie}
+                onDelete={smoothieState.deleteSmoothie}
+                onEdit={
+                  (smoothie) => {
+                    setCurrentFlow({flow: "EditSmoothie", smoothie})
+                  }
+                }
+              />
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <button onClick={() => setCurrentFlow({flow: 'ViewSmoothies'})}>Return to Smoothies</button>
+          {currentFlow.flow === "EditSmoothie" ?
+            <SmoothieForm 
+              initialValues={currentFlow.smoothie}
+              onSubmit={
+                (smoothieUpdate) => {
+                  smoothieState.updateSmoothie(currentFlow.smoothie.id, smoothieUpdate)
+                  setCurrentFlow({flow: "ViewSmoothies"})
+                }
+              } 
+              submitText={"Edit Smoothie"}
+            /> :
+            <SmoothieForm
+              onSubmit={
+                (smoothie) => {
+                  smoothieState.createSmoothie(smoothie)
+                  setCurrentFlow({flow: "ViewSmoothies"})
+                }
+              } 
+              submitText={"Create Smoothie"}
+            />
+          }
+        </>
+      )}
     </div>
   );
 }

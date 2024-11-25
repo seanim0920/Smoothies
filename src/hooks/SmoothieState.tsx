@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { SmoothieRepository } from '../storage/Repository';
-import { Smoothie, SmoothieID, SmoothiePublish, SmoothieUpdate } from '../types/Smoothie';
+import { Smoothie, SmoothieCreate, SmoothieID, SmoothiePublish, SmoothieUpdate } from '../types/Smoothie';
 import { filterSmoothies } from '../utils/FilterSmoothies';
 
 export const useSmoothieState = ({
@@ -25,17 +25,18 @@ export const useSmoothieState = ({
 
   return {
     smoothies,
-    createSmoothie: (smoothie: Smoothie) => {
+    createSmoothie: (smoothieCreate: SmoothieCreate) => {
+      const smoothie = {...smoothieCreate, id: crypto.randomUUID()}
       saveSmoothies([...savedSmoothies.current, smoothie])
       repository.createSmoothie(smoothie)
     },
-    updateSmoothie: (update: SmoothieUpdate) => {
-      const smoothie = findSmoothie(update.id)
+    updateSmoothie: (smoothieId: SmoothieID, update: SmoothieUpdate) => {
+      const smoothie = findSmoothie(smoothieId)
       if (!smoothie) {
         alert("Could not find smoothie to update")
         return;
       }
-      saveSmoothies(savedSmoothies.current.map((s) => (s.id === update.id ? {...smoothie, ...update} : s)))
+      saveSmoothies(savedSmoothies.current.map((s) => (s.id === smoothieId ? {...smoothie, ...update} : s)))
       repository.updateSmoothie(update, smoothie.isPublished)
     },
     deleteSmoothie: (smoothieId: SmoothieID) => {
