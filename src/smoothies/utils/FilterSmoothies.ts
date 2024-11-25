@@ -1,5 +1,5 @@
-import { Smoothie } from "../types/Smoothie";
-import { normalize } from "./String";
+import { normalize } from "../../common/String";
+import { Smoothie } from "../Types";
 
 export const filterSmoothies = (filterText: string, smoothies: Smoothie[]): Smoothie[] => {
   const queries = filterText.split(/\s+/).map(normalize);

@@ -22,7 +22,7 @@ export const useRequest = <T,>(request: () => Promise<T[]>) => {
         const response = await request();
         setResponse({status: "success", data: response})
       } catch (error) {
-        console.error('Error loading smoothies:', error);
+        console.error('Error loading data:', error);
         setResponse({status: "error", error})
       }
     })();

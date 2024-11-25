@@ -1,9 +1,9 @@
-import { ListField } from "./components/ListField";
-import { useForm } from "./hooks/Form";
-import { Ingredient, SmoothieInput } from "./types/Smoothie";
-import { validateIngredients, validateName } from "./utils/SmoothieFormValidation";
+import { ListField } from "../../common/form/ListField";
+import { useForm } from "../../common/form/useForm";
+import { Ingredient, SmoothieInput } from "../Types";
+import { validateIngredients, validateName } from "../utils/ValidateSmoothie";
 
-const initialSmoothie = {
+const initialSmoothie: SmoothieInput = {
   name: "",
   ingredients: [{ name: "", quantity: "" }],
   tags: [],

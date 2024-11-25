@@ -1,11 +1,10 @@
 import { useRef, useState } from 'react';
-import { SearchBar } from './components/SearchBar';
-import { confetti } from './Confetti';
-import { useSmoothieState } from './hooks/SmoothieState';
-import { SmoothieDetails } from './SmoothieDetails';
-import { SmoothieForm } from './SmoothieForm';
-import { smoothieRespository } from './storage/Repository';
-import { Smoothie } from './types/Smoothie';
+import { confetti } from './common/Confetti';
+import { SmoothieForm } from './smoothies/components/SmoothieForm';
+import { useSmoothieStorageState } from './smoothies/components/useSmoothieStorageState';
+import { smoothieRespository } from './smoothies/storage/Repository';
+import { Smoothie } from './smoothies/Types';
+import { ViewSmoothies } from './ViewSmoothies';
 
 type Navigation = 
   | { flow: 'ViewSmoothies' }
@@ -13,7 +12,7 @@ type Navigation =
   | { flow: 'EditSmoothie'; smoothie: Smoothie }
 
 export const App = () => {
-  const smoothieState = useSmoothieState(smoothieRespository)
+  const smoothieState = useSmoothieStorageState(smoothieRespository)
   const [currentFlow, setCurrentFlow] = useState<Navigation>({ flow: 'ViewSmoothies' });
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -23,6 +22,11 @@ export const App = () => {
 
   if (smoothieState.status === "loading") {
     return <h1>Loading Smoothie Recipes</h1>
+  }
+
+  const handleNavigateToList = () => {
+    smoothieState.filterSmoothies('')
+    setCurrentFlow({flow: 'ViewSmoothies'})
   }
 
   return (
@@ -42,32 +46,22 @@ export const App = () => {
       {currentFlow.flow === 'ViewSmoothies' ? (
         <>
           <button onClick={() => setCurrentFlow({flow: 'CreateSmoothie'})}>Make a Smoothie</button>
-          <SearchBar onSearch={smoothieState.filterSmoothies} />
-          <div>
-            <h2>{
-              smoothieState.smoothies.length === 0 ?
-              "Make a New Smoothie!" :
-              "Your Smoothies"
-            }</h2>
-            {smoothieState.smoothies.map((smoothie) => (
-              <SmoothieDetails
-                key={smoothie.id}
-                smoothie={smoothie}
-                onDelete={smoothieState.deleteSmoothie}
-                onEdit={
-                  (smoothie) => {
-                    setCurrentFlow({flow: "EditSmoothie", smoothie})
-                  }
-                }
-              />
-            ))}
-          </div>
+          <ViewSmoothies
+            smoothies={smoothieState.smoothies}
+            onFilter={smoothieState.filterSmoothies}
+            onDelete={smoothieState.deleteSmoothie}
+            onEdit={
+              (smoothie) => {
+                setCurrentFlow({flow: "EditSmoothie", smoothie})
+              }
+            }
+          />
         </>
       ) : (
         <>
           {currentFlow.flow === "EditSmoothie" ?
             <SmoothieForm 
-              onReturn={() => setCurrentFlow({flow: 'ViewSmoothies'})}
+              onReturn={handleNavigateToList}
               initialValues={currentFlow.smoothie}
               onSubmit={
                 (smoothieForm) => {
@@ -78,7 +72,7 @@ export const App = () => {
               submitText={"Finish Editing"}
             /> :
             <SmoothieForm
-              onReturn={() => setCurrentFlow({flow: 'ViewSmoothies'})}
+              onReturn={handleNavigateToList}
               onSubmit={
                 (smoothie) => {
                   smoothieState.createSmoothie(smoothie)

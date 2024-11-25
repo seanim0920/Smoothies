@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useRequest } from '../../common/useRequest';
 import { SmoothieRepository } from '../storage/Repository';
-import { Smoothie, SmoothieID, SmoothieInput, SmoothiePublish } from '../types/Smoothie';
+import { Smoothie, SmoothieID, SmoothieInput, SmoothiePublish } from '../Types';
 import { filterSmoothies } from '../utils/FilterSmoothies';
-import { useRequest } from './Request';
 
-export const useSmoothieState = (repository: SmoothieRepository) => {
+export const useSmoothieStorageState = (repository: SmoothieRepository) => {
   const savedSmoothies = useRef<Smoothie[]>([])
   const smoothiesFilter = useRef("")
   const [smoothies, setSmoothies] = useState<Smoothie[]>([])
@@ -68,9 +68,9 @@ export const useSmoothieState = (repository: SmoothieRepository) => {
       await repository.unpublishSmoothie(smoothieId)
       saveSmoothies(savedSmoothies.current.map((s) => (s.id === smoothieId ? {...s, isPublished: false} : s)))
     },
-    filterSmoothies: (filterText: string) => {
-      smoothiesFilter.current = filterText;
-      setSmoothies(filterSmoothies(filterText, savedSmoothies.current));
+    filterSmoothies: (filterText?: string) => {
+      smoothiesFilter.current = filterText ?? "";
+      setSmoothies(!filterText ? savedSmoothies.current : filterSmoothies(filterText, savedSmoothies.current));
     }
   }
 }

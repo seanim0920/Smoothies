@@ -1,6 +1,5 @@
-
-import { Ingredient } from "../types/Smoothie";
-import { validateIngredients, validateName } from "./SmoothieFormValidation";
+import { Ingredient } from "../Types";
+import { validateIngredients, validateName } from "./ValidateSmoothie";
 
 describe("validateName", () => {
   it("should return an error if the name is empty", () => {

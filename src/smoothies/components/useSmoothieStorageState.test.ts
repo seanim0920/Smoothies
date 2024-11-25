@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { SmoothieRepository } from "../storage/Repository";
-import { Smoothie } from "../types/Smoothie";
-import { useSmoothieState } from "./SmoothieState";
+import { Smoothie } from "../Types";
+import { useSmoothieStorageState } from "./useSmoothieStorageState";
 
 export const mockRepository = {
   loadSmoothies: jest.fn(),
@@ -35,7 +35,7 @@ export const mockSmoothies: Smoothie[] = [
   },
 ];
 
-describe("useSmoothieState", () => {
+describe("useSmoothieStorageState", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -43,7 +43,7 @@ describe("useSmoothieState", () => {
   it("should load smoothies from the repository", async () => {
     mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
-    const { result } = renderHook(() => useSmoothieState(mockRepository));
+    const { result } = renderHook(() => useSmoothieStorageState(mockRepository));
 
     await act(async () => {});
 
@@ -62,7 +62,7 @@ describe("useSmoothieState", () => {
   
     mockRepository.loadSmoothies.mockResolvedValueOnce([]);
   
-    const { result } = renderHook(() => useSmoothieState(mockRepository));
+    const { result } = renderHook(() => useSmoothieStorageState(mockRepository));
   
     await act(async () => {});
   
@@ -79,7 +79,7 @@ describe("useSmoothieState", () => {
   it("should update a smoothie in state and repository", async () => {
     mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
-    const { result } = renderHook(() => useSmoothieState(mockRepository));
+    const { result } = renderHook(() => useSmoothieStorageState(mockRepository));
 
     await act(async () => {});
 
@@ -99,7 +99,7 @@ describe("useSmoothieState", () => {
   it("should delete a smoothie in state and repository", async () => {
     mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
-    const { result } = renderHook(() => useSmoothieState(mockRepository));
+    const { result } = renderHook(() => useSmoothieStorageState(mockRepository));
 
     await act(async () => {});
 
@@ -114,7 +114,7 @@ describe("useSmoothieState", () => {
   it("should publish a smoothie in state and repository", async () => {
     mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
-    const { result } = renderHook(() => useSmoothieState(mockRepository));
+    const { result } = renderHook(() => useSmoothieStorageState(mockRepository));
 
     await act(async () => {});
 
@@ -129,7 +129,7 @@ describe("useSmoothieState", () => {
   it("should unpublish a smoothie in state and repository", async () => {
     mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
-    const { result } = renderHook(() => useSmoothieState(mockRepository));
+    const { result } = renderHook(() => useSmoothieStorageState(mockRepository));
 
     await act(async () => {});
 
@@ -144,7 +144,7 @@ describe("useSmoothieState", () => {
   it("should filter smoothies", async () => {
     mockRepository.loadSmoothies.mockResolvedValueOnce(mockSmoothies);
 
-    const { result } = renderHook(() => useSmoothieState(mockRepository));
+    const { result } = renderHook(() => useSmoothieStorageState(mockRepository));
 
     await act(async () => {});
 

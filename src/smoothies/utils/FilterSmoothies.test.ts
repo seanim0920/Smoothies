@@ -1,4 +1,5 @@
-import { Smoothie } from "../types/Smoothie";
+
+import { Smoothie } from "../Types";
 import { filterSmoothies } from "./FilterSmoothies";
 
 export const mockSmoothies: Smoothie[] = [

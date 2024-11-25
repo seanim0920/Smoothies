@@ -1,18 +1,14 @@
-import { Smoothie, SmoothieID } from "./types/Smoothie";
+import { Smoothie } from "../Types";
 
 export const SmoothieDetails = (
   { 
-    smoothie, 
-    onDelete, 
-    onEdit 
+    smoothie,
   } : {
     smoothie: Smoothie,
-    onDelete: (smoothieId: SmoothieID) => void,
-    onEdit: (smoothie: Smoothie) => void
   }
 ) => {
   return (
-    <div>
+    <>
       <h3>{smoothie.name}</h3>
       <p>Ingredients:</p>
       <ul>
@@ -27,8 +23,6 @@ export const SmoothieDetails = (
           Tags: {smoothie.tags.join(', ')}
         </p>
       )}
-      <button onClick={() => onEdit(smoothie)}>Edit</button>
-      <button onClick={() => onDelete(smoothie.id)}>Delete</button>
-    </div>
+    </>
   );
 }

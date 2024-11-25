@@ -1,4 +1,4 @@
-import { Smoothie } from "../types/Smoothie";
+import { Smoothie } from "../Types";
 
 export class PublicSmoothieStorage {
   async createSmoothie(smoothie: Smoothie): Promise<void> {

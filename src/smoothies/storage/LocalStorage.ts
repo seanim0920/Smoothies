@@ -1,4 +1,4 @@
-import { Smoothie } from "../types/Smoothie";
+import { Smoothie } from "../Types";
 
 export class LocalSmoothieStorage {
   private storageKey = 'smoothies';

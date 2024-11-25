@@ -1,4 +1,4 @@
-import { Ingredient } from "../types/Smoothie";
+import { Ingredient } from "../Types";
 
 export const validateName = (value: string) => {
   if (!value || value.trim() === "") {

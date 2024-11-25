@@ -1,4 +1,4 @@
-import { SmoothieInput, SmoothiePublish } from "../types/Smoothie";
+import { SmoothieInput, SmoothiePublish } from "../Types";
 import { LocalSmoothieStorage } from "./LocalStorage";
 import { PublicSmoothieStorage } from "./PublicStorage";
 import { SmoothieRepository } from "./Repository";
